@@ -1,0 +1,42 @@
+trigger:
+- main
+
+pool:
+  name: mypoolforproject
+
+stages:
+
+- stage: Build
+
+  jobs:
+  - job: BuildJob
+
+    steps:
+
+    - script: |
+        echo "Build Running"
+        hostname
+      displayName: "Build Stage"
+
+- stage: Deploy
+
+  dependsOn: Build
+
+  jobs:
+  - deployment: DeployWebsite
+
+    environment: production-vm
+
+    strategy:
+      runOnce:
+        deploy:
+
+          steps:
+
+          - script: |
+              sudo cp projectOne/index.html /var/www/html/index.html
+            displayName: "Deploy Website"
+
+          - script: |
+              sudo systemctl restart nginx
+            displayName: "Restart NGINX"
